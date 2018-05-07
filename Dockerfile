@@ -6,7 +6,7 @@ RUN set -eux \
     && cd /go/src/github.com/cofyc/xhttproxy \
     && go get github.com/golang/dep/cmd/dep \
     && dep ensure -v -vendor-only \
-    && CGO_ENABLED=0 go install github.com/cofyc/xhttproxy/cmd/xhttproxy
+    && make
 
 FROM alpine:3.7
 

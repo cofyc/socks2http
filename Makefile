@@ -9,7 +9,7 @@ else
 endif
 
 all: test
-	go install -ldflags "${LDFLAGS}" github.com/cofyc/xhttproxy/cmd/xhttproxy
+	CGO_ENABLED=0 go install -ldflags "${LDFLAGS}" github.com/cofyc/xhttproxy/cmd/xhttproxy
 
 test:
 	go test -timeout 5m github.com/cofyc/xhttproxy/...
