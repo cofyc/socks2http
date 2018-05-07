@@ -6,11 +6,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 
 	"github.com/cofyc/xhttproxy/pkg/version"
+	"github.com/golang/glog"
 	"golang.org/x/net/proxy"
 )
 
@@ -18,6 +18,7 @@ func handleTunneling(dialer proxy.Dialer, w http.ResponseWriter, r *http.Request
 	if dialer == nil {
 		dialer = proxy.Direct
 	}
+	glog.V(4).Infof("dialing %s", r.Host)
 	dest_conn, err := dialer.Dial("tcp", r.Host)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
@@ -43,11 +44,12 @@ func transfer(destination io.WriteCloser, source io.ReadCloser) {
 	io.Copy(destination, source)
 }
 
-func handleHTTP(transport http.RoundTripper, w http.ResponseWriter, req *http.Request) {
+func handleHTTP(transport http.RoundTripper, w http.ResponseWriter, r *http.Request) {
+	glog.V(4).Infof("roundtrip to %s", r.Host)
 	if transport == nil {
 		transport = http.DefaultTransport
 	}
-	resp, err := transport.RoundTrip(req)
+	resp, err := transport.RoundTrip(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		return
@@ -98,13 +100,15 @@ func (d *httpDialer) Dial(network, addr string) (net.Conn, error) {
 }
 
 func main() {
+	// We log to stderr because glog will default to logging to a file.
+	flag.Set("logtostderr", "true")
 	flag.Parse()
 	if optVersion {
 		fmt.Printf("xhttproxy %s\n", version.VERSION)
 		return
 	}
 	if optProto != "http" && optProto != "https" {
-		log.Fatal("Protocol must be either http or https")
+		glog.Fatal("Protocol must be either http or https")
 	}
 	var dialer proxy.Dialer
 	var transport http.RoundTripper
@@ -112,7 +116,7 @@ func main() {
 	if optSocks != "" {
 		dialer, err = proxy.SOCKS5("tcp", optSocks, nil, proxy.Direct)
 		if err != nil {
-			log.Fatal(err)
+			glog.Fatal(err)
 		}
 		d := &httpDialer{dialer}
 		transport = &http.Transport{
@@ -132,9 +136,10 @@ func main() {
 		// Disable HTTP/2.
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
 	}
+	glog.Infof("listen %s on %s", optProto, optAddress)
 	if optProto == "http" {
-		log.Fatal(server.ListenAndServe())
+		glog.Fatal(server.ListenAndServe())
 	} else {
-		log.Fatal(server.ListenAndServeTLS(optPemPath, optKeyPath))
+		glog.Fatal(server.ListenAndServeTLS(optPemPath, optKeyPath))
 	}
 }

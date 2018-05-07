@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/golang/glog"
+  packages = ["."]
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "internal/socks",
@@ -13,6 +19,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "34744610471856507a9ee783d045552baeaa3cd9aea9c202d1f47c9edbcafb19"
+  inputs-digest = "139f73090e89b55d77725778f4e8778fecda9c24d14ee11422b7cf320da2b52e"
   solver-name = "gps-cdcl"
   solver-version = 1
