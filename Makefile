@@ -8,7 +8,7 @@ else
 	LDFLAGS += -X github.com/cofyc/xhttproxy/pkg/version.VERSION=${GIT_VERSION}
 endif
 
-all: test
+all:
 	CGO_ENABLED=0 go install -ldflags "${LDFLAGS}" github.com/cofyc/xhttproxy/cmd/xhttproxy
 
 test:
